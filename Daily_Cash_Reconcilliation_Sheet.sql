@@ -21,39 +21,48 @@ begin
 			Declare Previous_Entry_Date Text DEFAULT '';
 			Declare User_Entry_Date Text Default '';
 			Declare Is_ENTRY_Date_Exists Text Default '';
+            		Declare Beginning_Balance DECIMAL(22,2) Default 0;
+            		Declare Closing_Report Text Default '';
             
 			
 			if (P_Flow_Flag = "InFlow")
 			then 
 					select MAX(ENTRY_DATE) into Last_Entry_Date from Daily_Cash_Reconciliation_Sheet where ACC_ID = P_ACCOUNT_ID and Company_ID = P_COMPANY_ID;
 					select Entry_Date into Is_ENTRY_Date_Exists from Daily_Cash_Reconciliation_Sheet where Entry_Date = P_ENTRY_DATE and ACC_ID = P_ACCOUNT_ID and Company_ID = P_COMPANY_ID;
-					
+					select ENDING_BALANCE into Beginning_Balance from  Daily_Cash_Reconciliation_Sheet where Convert(Entry_Date,Date) = Convert(Previous_Entry_date,Date);
 					
 					
 					if Last_Entry_Date is null OR Last_Entry_Date = '' and Is_ENTRY_Date_Exists = '' OR IS_ENTRY_DATE_EXISTS is null
 							then 
 								SET User_Entry_Date = Convert(P_ENTRY_DATE,Date);
 								SET Previous_Entry_Date = Convert(P_ENTRY_DATE,Date);
-							 
-								ELSEIF Convert(P_ENTRY_DATE,Date) > Convert(Last_Entry_Date,Date) and Is_ENTRY_Date_Exists <> ''
+								SET Closing_Report = 'Allowed';
+								ELSEIF Convert(P_ENTRY_DATE,Date) > Convert(Last_Entry_Date,Date) and Is_ENTRY_Date_Exists = ''
 								then 
 									
 									SET User_Entry_Date = Convert(P_ENTRY_DATE,Date);
 									SET Previous_Entry_Date = Convert(Last_Entry_Date,Date);
-									
+									Set Closing_Report = 'Allowed';
 							
-								ELSEif Convert(P_ENTRY_DATE,Date) < Convert(Last_Entry_Date,Date) and Is_ENTRY_Date_Exists <> ''
+								ELSEif Convert(P_ENTRY_DATE,Date) <= Convert(Last_Entry_Date,Date) and Is_ENTRY_Date_Exists <> ''
 								then 
 									
-									select MAX(ENTRY_DATE) into Previous_Entry_Date from Daily_Cash_Reconciliation_Sheet where ENTRY_DATE < Last_Entry_Date and ACC_ID = P_ACCOUNT_ID and Company_ID = P_COMPANY_ID;
-									SET User_Entry_Date = Convert(P_ENTRY_DATE,Date);
-									
+									select MAX(ENTRY_DATE) into Previous_Entry_Date from Daily_Cash_Reconciliation_Sheet where ENTRY_DATE < Convert(P_ENTRY_DATE,Date) and ACC_ID = P_ACCOUNT_ID and Company_ID = P_COMPANY_ID;
+									Set Closing_Report = 'Not_Allowed';
+                                    					/*IF Entry Date is First Entry Date*/
+                                    					if Previous_Entry_Date is null or Previous_Entry_Date = ''
+										then 
+                                        
+											SET User_Entry_Date = Convert(P_ENTRY_DATE,Date);
+										        SET Previous_Entry_Date = Convert(P_ENTRY_DATE,Date);
+                                            
+									else 
+											SET User_Entry_Date = Convert(P_ENTRY_DATE,Date);
+                                            
+									End if;
 						
-								ELSEif Convert(P_ENTRY_DATE,Date) = Convert(Last_Entry_Date,Date) and Is_ENTRY_Date_Exists <> ''
-								then 
-									SET User_Entry_Date = Convert(P_ENTRY_DATE,Date);
-									SET Previous_Entry_Date = Convert(Last_Entry_Date,Date);
-								ELSE
+							ELSE
+                                    					Set Closing_Report = 'Not_Allowed';
 									SET User_Entry_Date = '';
 									SET Previous_Entry_Date = '';
 							    /*No Records Found*/
@@ -61,20 +70,24 @@ begin
 					END IF;
 							
 						
-								
-								select *,Count(*) Over() as Total_ROWS,SUM(A.Amount) Over() as Total_InFlow
-                				                from(
+							    select ENDING_BALANCE into Beginning_Balance from	Daily_Cash_Reconciliation_Sheet	where Convert(Entry_Date,Date) = Convert(Previous_Entry_date,Date) and Convert(User_Entry_Date,Date)<>Convert(Previous_Entry_Date,Date);
+
+								select *,Count(*) Over() as Total_ROWS,SUM(A.Amount) Over() as Total_InFlow,IFNULL(Beginning_Balance,0) as Beginning_Balance,Closing_Report as Closing_Report
+                                from(
 										select      '-1' as id,
 													'inflow' as Cash_Flow,
-													case when Beginning_Balance > 0 then Beginning_Balance else 0 end as Amount,
+													case when ENDING_BALANCE > 0 then ENDING_BALANCE else 0 end as Amount,
 													'' as Form_Reference,
 													'' as Form_Id,
 													'' as Confliction_Flag,
-													'' as Form_Flag
+													'Beginning Balance' as Form_Flag
 										from 
 													Daily_Cash_Reconciliation_Sheet
 										where 
 													Convert(Entry_Date,Date) = Convert(Previous_Entry_date,Date)
+										AND 
+													ENDING_BALANCE > 0
+										and 			Convert(User_Entry_Date,Date)	<>	Convert(Previous_Entry_Date,Date)
 													
 										Union All
 										            
@@ -88,12 +101,12 @@ begin
 													 'Replacement' 		as FORM_FLAG
 										from 		  
 													  Receipts A
-										inner join 	 	  Receipts_Detail B 
+										inner join	 	  Receipts_Detail B 
 										ON 			  A.id = B.Receipts_Id 
-										inner join 	  	  receipts_detail_junction C
+										inner join 		  receipts_detail_junction C
 										ON 			  B.RECEIPTS_DETAIL_JUNCTION_ID = C.ID
 										where 		  	  A.CASH_ACC_ID 			    = P_ACCOUNT_ID
-                                        					And 
+                                    					        And 
 													  case	
 															when Convert(A.ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date) then Convert(A.ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date)
                                                             								when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.Entry_Date,Date) = Convert(User_Entry_Date,Date)
@@ -118,7 +131,7 @@ begin
 													   'Receipts' 			as Confliction_Flag,
 													   'SaleInvoice' 		as Form_Flag
 										from 	
-														Receipts A 
+												Receipts A 
 										inner join  	receipts_detail B 
 										ON    	        A.id = B.RECEIPTS_ID
 										inner join  	Receipts_Detail_Junction C 
@@ -134,26 +147,26 @@ begin
 															when Convert(A.Entry_Date,Date) <= Convert(User_Entry_Date,Date) then Convert(A.Entry_date,Date) <= Convert(User_Entry_Date,Date)
 															when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.Entry_Date,Date) = Convert(User_Entry_Date,Date)
 													  END		   
-										and		B.FORM_FLAG = 'I'
-										and    	        A.COMPANY_ID = P_COMPANY_ID
+										and		        		B.FORM_FLAG = 'I'
+										and    	        			A.COMPANY_ID = P_COMPANY_ID
 										
 										Union All 
 										
 										select  	
 														B.id,
-														'Inflow' 		 as Cash_Flow,
+														'Inflow' 			 as Cash_Flow,
 														ABS(B.FORM_AMOUNT) 	 as Amount,
 														B.FORM_F_ID 		 as Form_Reference,
-														C.STOCK_TRANSFER_ID  	 as Form_Id,
-														'Receipts'		 as Confliction_Flag,
+														C.STOCK_TRANSFER_ID  as Form_Id,
+														'Receipts'			 as Confliction_Flag,
 														'StockTransfer' 	 as Form_Flag
 										from 	
-												Receipts A 
-										inner join 	receipts_detail B 
-										ON     		A.id = B.RECEIPTS_ID
-										inner join  	Receipts_Detail_Junction C 
-										ON     		B.RECEIPTS_DETAIL_JUNCTION_ID = C.ID
-										where     	A.CASH_ACC_ID = P_ACCOUNT_ID
+														Receipts A 
+										inner join 	    		receipts_detail B 
+										ON     		   		A.id = B.RECEIPTS_ID
+										inner join  			Receipts_Detail_Junction C 
+										ON     		    		B.RECEIPTS_DETAIL_JUNCTION_ID = C.ID
+										where     			A.CASH_ACC_ID = P_ACCOUNT_ID
 										And 
 													  case	
 															when Convert(A.ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date) then Convert(A.ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date)
@@ -170,13 +183,13 @@ begin
 										Union All 
 										
 										select  	
-													B.id,
-													'Inflow' 	    as Cash_Flow,
-													ABS(B.FORM_AMOUNT)  as Amount,
-													B.FORM_F_ID 	    as Form_Reference,
-													C.VCM_ID 	    as Form_Id,
-													'Payments' 	    as Confliction_Flag,
-													'VendorCreditMemo'  as Form_Flag
+												    B.id,
+												    'Inflow' 	    	as Cash_Flow,
+												    ABS(B.FORM_AMOUNT)  as Amount,
+												    B.FORM_F_ID 	as Form_Reference,
+												    C.VCM_ID 	    	as Form_Id,
+												    'Payments' 	    	as Confliction_Flag,
+												    'VendorCreditMemo'  as Form_Flag
 										from 	
 												    Payments A 
 										inner join 	    Payments_detail B 
@@ -200,15 +213,15 @@ begin
 										Union All 
 										
 										select  	
-														B.id,
-														'Inflow' 		   as Cash_Flow,
-														ABS(B.FORM_AMOUNT) 	   as Amount,
-														B.FORM_F_ID 		   as Form_Reference,
-														C.PARTIAL_CREDIT_ID  	   as Form_Id,
-														'Payments' 		   as Confliction_Flag,
-														'PartialCreditVoucher' 	   as Form_Flag
+												B.id,
+												'Inflow' 		as Cash_Flow,
+												ABS(B.FORM_AMOUNT) 	as Amount,
+												B.FORM_F_ID 		as Form_Reference,
+												C.PARTIAL_CREDIT_ID     as Form_Id,
+												'Payments' 		as Confliction_Flag,
+												'PartialCreditVoucher'  as Form_Flag
 										from 	
-														Payments A 
+												Payments A 
 										inner join  	Payments_detail B 
 										ON          	A.id = B.Payments_ID
 										inner join 	Payments_Detail_Junction C 
@@ -235,7 +248,7 @@ begin
 			then 
 					select MAX(ENTRY_DATE) into Last_Entry_Date from Daily_Cash_Reconciliation_Sheet where ACC_ID = P_ACCOUNT_ID and Company_ID = P_COMPANY_ID;
 					select Entry_Date into Is_ENTRY_Date_Exists from Daily_Cash_Reconciliation_Sheet where Entry_Date = P_ENTRY_DATE and ACC_ID = P_ACCOUNT_ID and Company_ID = P_COMPANY_ID;
-					
+
 					
 					
 					if Last_Entry_Date is null OR Last_Entry_Date = '' and Is_ENTRY_Date_Exists = ''
@@ -243,76 +256,88 @@ begin
 							
 								SET User_Entry_Date = Convert(P_ENTRY_DATE,Date);
 								SET Previous_Entry_Date = Convert(P_ENTRY_DATE,Date);
-							 
-								ELSEIF Convert(P_ENTRY_DATE,Date) > Convert(Last_Entry_Date,Date) and Is_ENTRY_Date_Exists <> ''
+							    SET Closing_Report = 'Allowed';
+                                
+								ELSEIF Convert(P_ENTRY_DATE,Date) > Convert(Last_Entry_Date,Date) and Is_ENTRY_Date_Exists = ''
 								then 
 									
 									SET User_Entry_Date = Convert(P_ENTRY_DATE,Date);
 									SET Previous_Entry_Date = Convert(Last_Entry_Date,Date);
-									
+									SET Closing_Report = 'Allowed';
 							
-								ELSEif Convert(P_ENTRY_DATE,Date) < Convert(Last_Entry_Date,Date) and Is_ENTRY_Date_Exists <> ''
+								ELSEif Convert(P_ENTRY_DATE,Date) <= Convert(Last_Entry_Date,Date) and Is_ENTRY_Date_Exists <> ''
 								then 
 									
-									select MAX(ENTRY_DATE) into Previous_Entry_Date from Daily_Cash_Reconciliation_Sheet where ENTRY_DATE < Last_Entry_Date and ACC_ID = P_ACCOUNT_ID and Company_ID = P_COMPANY_ID;
-									SET User_Entry_Date = Convert(P_ENTRY_DATE,Date);
+                                    					Set Closing_Report = 'Not_Allowed';
+									select MAX(ENTRY_DATE) into Previous_Entry_Date from Daily_Cash_Reconciliation_Sheet where ENTRY_DATE < Convert(P_ENTRY_DATE,Date) and ACC_ID = P_ACCOUNT_ID and Company_ID = P_COMPANY_ID;
+									/*IF Entry Date is First Entry Date*/
+                                    					if Previous_Entry_Date is null or Previous_Entry_Date = ''
+										then 
+                                        
+											SET User_Entry_Date = Convert(P_ENTRY_DATE,Date);
+										        SET Previous_Entry_Date = Convert(P_ENTRY_DATE,Date);
+                                            
+									else 
+											SET User_Entry_Date = Convert(P_ENTRY_DATE,Date);
+                                            
+									End if;
 									
-						
-								ELSEif Convert(P_ENTRY_DATE,Date) = Convert(Last_Entry_Date,Date) and Is_ENTRY_Date_Exists <> ''
-								then 
-									SET User_Entry_Date = Convert(P_ENTRY_DATE,Date);
-									SET Previous_Entry_Date = Convert(Last_Entry_Date,Date);
 							ELSE
-								
+								    	SET Closing_Report = 'Not_Allowed';
 									SET User_Entry_Date = '';
 									SET Previous_Entry_Date = '';
 							    /*No Records Found*/
 							
 					END IF;
-					
-					select *,Count(*) Over() as Total_ROWS,SUM(A.Amount) Over() as Total_OutFlow
+					select  ENDING_BALANCE into Beginning_Balance from	Daily_Cash_Reconciliation_Sheet	where Convert(Entry_Date,Date) = Convert(Previous_Entry_date,Date) and Convert(User_Entry_Date,Date)<>Convert(Previous_Entry_Date,Date);
+
+					select *,Count(*) Over() as Total_ROWS,SUM(A.Amount) Over() as Total_OutFlow,IFNULL(Beginning_Balance,0) as Beginning_Balance,Closing_Report as Closing_Report
 					from(
 					
-							select    '-1' 		as id,
-									  'inflow' 	as Cash_Flow,
-									  case when Beginning_Balance < 0 then Beginning_Balance else 0 end as Amount,
+							select    	'-1' 		as id,
+									  'Outflow'	as Cash_Flow,
+									  case when ENDING_BALANCE < 0 then ABS(ENDING_BALANCE) else 0 end as Amount,
 									  '' 		as Form_Reference,
 									  '' 		as Form_Id,
 									  '' 		as Confliction_Flag,
-									  '' 		as Form_Flag
+									  'Beginning Balance' as Form_Flag
 							from 
 									  Daily_Cash_Reconciliation_Sheet
 							where 
 									  Convert(Entry_Date,Date) = Convert(Previous_Entry_date,Date)
-													
+							AND 
+									  ENDING_BALANCE < 0
+							and 
+									  Convert(User_Entry_Date,Date)	<>	Convert(Previous_Entry_Date,Date)
+                            
 							Union All
 							
 							select 	    
 										B.id,
-										'Outflow' 	   as Cash_Flow,
+										'Outflow' 		   as Cash_Flow,
 										ABS(B.FORM_AMOUNT) as Amount,
 										B.FORM_F_ID 	   as Form_Reference,
 										C.RECEIVING_ID 	   as Form_Id,
-										'Payments' 	   as Confliction_Flag,
+										'Payments' 		   as Confliction_Flag,
 										'ReceiveOrder' 	   as Form_Flag
-							from 		Payments A
-							inner join 	Payments_Detail B 
-							ON 		A.id = B.Payments_Id 
-							inner join 	Payments_detail_junction C
-							ON 		B.Payments_DETAIL_JUNCTION_ID = C.ID
-							where 		A.CASH_ACC_ID 			   = P_ACCOUNT_ID
+							from 			Payments A
+							inner join 		Payments_Detail B 
+							ON 			A.id = B.Payments_Id 
+							inner join 		Payments_detail_junction C
+							ON 			B.Payments_DETAIL_JUNCTION_ID = C.ID
+							where 			A.CASH_ACC_ID 			   = P_ACCOUNT_ID
 							And 
 													  case	
 															when Convert(A.ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date) then Convert(A.ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date)
                                                             								when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.Entry_Date,Date) = Convert(User_Entry_Date,Date)
 													  END
-										and           
+							and           
 													  case 
 															when Convert(A.Entry_Date,Date) <= Convert(User_Entry_Date,Date) then Convert(A.Entry_date,Date) <= Convert(User_Entry_Date,Date)
 															when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.Entry_Date,Date) = Convert(User_Entry_Date,Date)
 													  END
-							and 	    B.FORM_FLAG 			   = 'R'
-							and         A.COMPANY_ID = P_COMPANY_ID
+							and 		 B.FORM_FLAG 			   = 'R'
+							and	         A.COMPANY_ID = P_COMPANY_ID
 							
 							Union All 
 							
@@ -324,12 +349,12 @@ begin
 										C.Sale_Return_ID   as Form_Id,
 										'Receipts' 		   as Confliction_Flag,
 										'SaleReturn' 	   as Form_Flag
-							from 		Receipts A
-							inner join 	Receipts_Detail B 
-							ON 		A.id = B.Receipts_Id 
-							inner join 	Receipts_detail_junction C
-							ON 		B.Receipts_DETAIL_JUNCTION_ID = C.ID
-							where 		A.CASH_ACC_ID 			   = P_ACCOUNT_ID
+							from 			Receipts A
+							inner join 		Receipts_Detail B 
+							ON 			A.id = B.Receipts_Id 
+							inner join 		Receipts_detail_junction C
+							ON 			B.Receipts_DETAIL_JUNCTION_ID = C.ID
+							where 			A.CASH_ACC_ID 			   = P_ACCOUNT_ID
 							And 
 													  case	
 															when Convert(A.ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date) then Convert(A.ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date)
@@ -347,18 +372,18 @@ begin
 							
 							select 	    
 										B.id,
-										'Outflow' 	   as Cash_Flow,
+										'Outflow' 		   as Cash_Flow,
 										ABS(B.FORM_AMOUNT) as Amount,
 										B.FORM_F_ID 	   as Form_Reference,
 										C.Stock_In_ID 	   as Form_Id,
-										'Payments' 	   as Confliction_Flag,
-										'StockIn' 	   as Form_Flag
-							from 		Payments A
-							inner join 	Payments_Detail B 
-							ON 		A.id = B.Payments_Id 
-							inner join 	Payments_detail_junction C
-							ON 		B.Payments_DETAIL_JUNCTION_ID = C.ID
-							where 		A.CASH_ACC_ID 			   = P_ACCOUNT_ID
+										'Payments' 		   as Confliction_Flag,
+										'StockIn' 		   as Form_Flag
+							from 			Payments A
+							inner join 		Payments_Detail B 
+							ON 			A.id = B.Payments_Id 
+							inner join 		Payments_detail_junction C
+							ON 			B.Payments_DETAIL_JUNCTION_ID = C.ID
+							where 			A.CASH_ACC_ID 			   = P_ACCOUNT_ID
 							And 
 													  case	
 															when Convert(A.ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date) then Convert(A.ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date)
@@ -369,8 +394,8 @@ begin
 															when Convert(A.Entry_Date,Date) <= Convert(User_Entry_Date,Date) then Convert(A.Entry_date,Date) <= Convert(User_Entry_Date,Date)
 															when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.Entry_Date,Date) = Convert(User_Entry_Date,Date)
 													  END
-							and 	    B.FORM_FLAG 			   = 'N'
-							and         A.COMPANY_ID = P_COMPANY_ID
+							and 		B.FORM_FLAG 			   = 'N'
+							and         	A.COMPANY_ID = P_COMPANY_ID
 							
 							Union All 
 							
@@ -382,12 +407,12 @@ begin
 										C.REPLACEMENT_ID 	as Form_Id,
 										'Receipts' 			as Confliction_Flag,
 										'Replacement' 		as Form_Flag
-							from 		Receipts A
-							inner join 	Receipts_Detail B 
-							ON 		A.id = B.Receipts_Id 
-							inner join 	receipts_detail_junction C
-							ON	 	B.RECEIPTS_DETAIL_JUNCTION_ID = C.ID
-							where 		A.CASH_ACC_ID 			   = P_ACCOUNT_ID
+							from 			Receipts A
+							inner join 		Receipts_Detail B 
+							ON 			A.id = B.Receipts_Id 
+							inner join 		receipts_detail_junction C
+							ON	 		B.RECEIPTS_DETAIL_JUNCTION_ID = C.ID
+							where 			A.CASH_ACC_ID 			   = P_ACCOUNT_ID
 							And 
 													  case	
 															when Convert(A.ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date) then Convert(A.ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date)
@@ -406,19 +431,19 @@ begin
 							
 							select 	    
 										B.id,
-										'Outflow' 		   as Cash_Flow,
+										'Outflow' 			   as Cash_Flow,
 										ABS(B.FORM_AMOUNT) 	   as Amount,
 										B.FORM_F_ID 		   as Form_Reference,
-										C.PARTIAL_CREDIT_ID 	   as Form_Id,
-										'Receipts' 		   as Confliction_Flag,
-										'PartialCreditVoucher' 	   as Form_Flag
+										C.PARTIAL_CREDIT_ID    as Form_Id,
+										'Receipts' 			   as Confliction_Flag,
+										'PartialCreditVoucher' as Form_Flag
 							from 		
-									 Receipts A
-							inner join 	 Receipts_Detail B 
-							ON 		 A.id = B.Receipts_Id 
-							inner join	 Receipts_detail_junction C
-							ON 		 B.Receipts_DETAIL_JUNCTION_ID = C.ID
-							where 		 A.CASH_ACC_ID 			   = P_ACCOUNT_ID
+										 Receipts A
+							inner join 		 Receipts_Detail B 
+							ON 			 A.id = B.Receipts_Id 
+							inner join		 Receipts_detail_junction C
+							ON 			 B.Receipts_DETAIL_JUNCTION_ID = C.ID
+							where 		 	A.CASH_ACC_ID 			   = P_ACCOUNT_ID
 							And 
 													  case	
 															when Convert(A.ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date) then Convert(A.ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date)
@@ -429,7 +454,7 @@ begin
 															when Convert(A.Entry_Date,Date) <= Convert(User_Entry_Date,Date) then Convert(A.Entry_date,Date) <= Convert(User_Entry_Date,Date)
 															when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.Entry_Date,Date) = Convert(User_Entry_Date,Date)
 													  END
-							and 	    B.FORM_FLAG 			   = 'L'
+							and 		 B.FORM_FLAG 			   = 'L'
 							and         A.COMPANY_ID = P_COMPANY_ID
 							
 					)A Limit P_START,P_LENGTH;
@@ -437,7 +462,7 @@ begin
 				
 			
 END $$
-DELIMITER ;				
+DELIMITER ;	
 
 
 
