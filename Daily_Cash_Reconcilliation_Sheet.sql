@@ -1,10 +1,10 @@
 create table Daily_Cash_Reconciliation_Sheet(
 						id int not null primary key AUTO_INCREMENT,
-						Entry_Date Datetime,
+						Entry_Date Date,
 						ACC_ID int,
 						Company_ID int,
 						Inflow Decimal(22,2),
-						Outflow Decimal(2,2),
+						Outflow Decimal(22,2),
 						Beginning_Balance Decimal(22,2),
 						Ending_Balance Decimal(22,2)
 					    );
