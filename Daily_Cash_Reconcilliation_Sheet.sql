@@ -1,3 +1,15 @@
+Alter Table Company
+Add Account_Id int;
+
+update Company A 
+inner join accounts_id B 
+on A.id = B.Company_Id 
+SET A.Account_Id = B.id 
+where B.ACC_ID = 1020;
+
+Alter Table Company 
+Modify Account_ID int not null;
+
 create table Daily_Cash_Reconciliation_Sheet(
 						id int not null primary key AUTO_INCREMENT,
 						Entry_Date Date,
