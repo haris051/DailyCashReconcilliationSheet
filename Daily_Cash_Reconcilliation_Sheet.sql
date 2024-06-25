@@ -91,7 +91,7 @@ begin
 			if (P_Flow_Flag = "InFlow")
 			then 
 					select MAX(ENTRY_DATE) into Last_Entry_Date from Daily_Cash_Reconciliation_Sheet where ACC_ID = P_ACCOUNT_ID and Company_ID = P_COMPANY_ID;
-					select Entry_Date into Is_ENTRY_Date_Exists from Daily_Cash_Reconciliation_Sheet where Entry_Date = P_ENTRY_DATE and ACC_ID = P_ACCOUNT_ID and Company_ID = P_COMPANY_ID;
+					select Entry_Date into Is_ENTRY_Date_Exists from Daily_Cash_Reconciliation_Sheet where Entry_Date = Convert(P_ENTRY_DATE,Date) and ACC_ID = P_ACCOUNT_ID and Company_ID = P_COMPANY_ID;
 					
 					
 					if Last_Entry_Date is null OR Last_Entry_Date = '' and Is_ENTRY_Date_Exists = '' OR IS_ENTRY_DATE_EXISTS is null
@@ -100,7 +100,7 @@ begin
 								SET Previous_Entry_Date = Convert(P_ENTRY_DATE,Date);
 								SET Closing_Report = 'Allowed';
                                 
-								select IFNULL(BEGINNING_BALANCE,0) into Beginning_Balance from Daily_Cash_Reconciliation_Sheet where Convert(Entry_Date,Date) = Convert(Previous_Entry_date,Date);
+								select IFNULL(BEGINNING_BALANCE,0) into Beginning_Balance from Daily_Cash_Reconciliation_Sheet where Convert(Entry_Date,Date) = Convert(Previous_Entry_date,Date) and ACC_ID = P_ACCOUNT_ID and Company_ID = P_COMPANY_ID;
 
 								ELSEIF Convert(P_ENTRY_DATE,Date) > Convert(Last_Entry_Date,Date) and Is_ENTRY_Date_Exists = ''
 								then 
@@ -108,12 +108,12 @@ begin
 									SET User_Entry_Date = Convert(P_ENTRY_DATE,Date);
 									SET Previous_Entry_Date = Convert(Last_Entry_Date,Date);
 									Set Closing_Report = 'Allowed';
-									select IFNULL(ENDING_BALANCE,0) into Beginning_Balance from	Daily_Cash_Reconciliation_Sheet	where Convert(Entry_Date,Date) = Convert(Previous_Entry_date,Date);
+									select IFNULL(ENDING_BALANCE,0) into Beginning_Balance from	Daily_Cash_Reconciliation_Sheet	where Convert(Entry_Date,Date) = Convert(Previous_Entry_date,Date) and ACC_ID = P_ACCOUNT_ID and Company_ID = P_COMPANY_ID;
 
 								ELSEif Convert(P_ENTRY_DATE,Date) <= Convert(Last_Entry_Date,Date) and Is_ENTRY_Date_Exists <> ''
 								then 
 									
-									select MAX(ENTRY_DATE) into Previous_Entry_Date from Daily_Cash_Reconciliation_Sheet where ENTRY_DATE < Convert(P_ENTRY_DATE,Date) and ACC_ID = P_ACCOUNT_ID and Company_ID = P_COMPANY_ID;
+									select MAX(ENTRY_DATE) into Previous_Entry_Date from Daily_Cash_Reconciliation_Sheet where Convert(ENTRY_DATE,Date) < Convert(P_ENTRY_DATE,Date) and ACC_ID = P_ACCOUNT_ID and Company_ID = P_COMPANY_ID;
 									Set Closing_Report = 'Not_Allowed';
                                     /*IF Entry Date is First Entry Date*/
 									if Previous_Entry_Date is null or Previous_Entry_Date = ''
@@ -122,11 +122,11 @@ begin
 											SET User_Entry_Date = Convert(P_ENTRY_DATE,Date);
 											SET Previous_Entry_Date = Convert(P_ENTRY_DATE,Date);
 									
-                                            select IFNULL(BEGINNING_BALANCE,0) into Beginning_Balance from	Daily_Cash_Reconciliation_Sheet	where Convert(Entry_Date,Date) = Convert(Previous_Entry_date,Date);
+                                            select IFNULL(BEGINNING_BALANCE,0) into Beginning_Balance from	Daily_Cash_Reconciliation_Sheet	where Convert(Entry_Date,Date) = Convert(Previous_Entry_date,Date) and ACC_ID = P_ACCOUNT_ID and Company_ID = P_COMPANY_ID;
 
 									else 
 											SET User_Entry_Date = Convert(P_ENTRY_DATE,Date);
-											select IFNULL(ENDING_BALANCE,0) into Beginning_Balance from	Daily_Cash_Reconciliation_Sheet	where Convert(Entry_Date,Date) = Convert(Previous_Entry_date,Date) and Convert(User_Entry_Date,Date)<>Convert(Previous_Entry_Date,Date);
+											select IFNULL(ENDING_BALANCE,0) into Beginning_Balance from	Daily_Cash_Reconciliation_Sheet	where Convert(Entry_Date,Date) = Convert(Previous_Entry_date,Date) and Convert(User_Entry_Date,Date)<>Convert(Previous_Entry_Date,Date) and ACC_ID = P_ACCOUNT_ID and Company_ID = P_COMPANY_ID;
 
                                             
 									End if;
@@ -268,11 +268,11 @@ begin
 										
 										select  	
 												B.id,
-												'Inflow' 		as Cash_Flow,
-												ABS(B.FORM_AMOUNT) 	as Amount,
-												B.FORM_F_ID 		as Form_Reference,
+												'Inflow' 				as Cash_Flow,
+												ABS(B.FORM_AMOUNT) 		as Amount,
+												B.FORM_F_ID 			as Form_Reference,
 												C.PARTIAL_CREDIT_ID     as Form_Id,
-												'Payments' 		as Confliction_Flag,
+												'Payments' 				as Confliction_Flag,
 												'PartialCreditVoucher'  as Form_Flag
 										from 	
 													Payments A 
@@ -301,7 +301,7 @@ begin
 			if (P_Flow_Flag = "OutFlow")
 			then 
 					select MAX(ENTRY_DATE) into Last_Entry_Date from Daily_Cash_Reconciliation_Sheet where ACC_ID = P_ACCOUNT_ID and Company_ID = P_COMPANY_ID;
-					select Entry_Date into Is_ENTRY_Date_Exists from Daily_Cash_Reconciliation_Sheet where Entry_Date = P_ENTRY_DATE and ACC_ID = P_ACCOUNT_ID and Company_ID = P_COMPANY_ID;
+					select Entry_Date into Is_ENTRY_Date_Exists from Daily_Cash_Reconciliation_Sheet where Convert(Entry_Date,Date) = Convert(P_ENTRY_DATE,Date) and ACC_ID = P_ACCOUNT_ID and Company_ID = P_COMPANY_ID;
 
 					
 					
@@ -311,7 +311,7 @@ begin
 								SET User_Entry_Date = Convert(P_ENTRY_DATE,Date);
 								SET Previous_Entry_Date = Convert(P_ENTRY_DATE,Date);
 							    SET Closing_Report = 'Allowed';
-								select  IFNULL(BEGINNING_BALANCE,0) into Beginning_Balance from Daily_Cash_Reconciliation_Sheet where Convert(Entry_Date,Date) = Convert(Previous_Entry_date,Date);
+								select  IFNULL(BEGINNING_BALANCE,0) into Beginning_Balance from Daily_Cash_Reconciliation_Sheet where Convert(Entry_Date,Date) = Convert(Previous_Entry_date,Date) and ACC_ID = P_ACCOUNT_ID and Company_ID = P_COMPANY_ID;
 
                                 
 								ELSEIF Convert(P_ENTRY_DATE,Date) > Convert(Last_Entry_Date,Date) and Is_ENTRY_Date_Exists = ''
@@ -320,7 +320,7 @@ begin
 									SET User_Entry_Date = Convert(P_ENTRY_DATE,Date);
 									SET Previous_Entry_Date = Convert(Last_Entry_Date,Date);
 									SET Closing_Report = 'Allowed';
-									select IFNULL(ENDING_BALANCE,0) into Beginning_Balance from	Daily_Cash_Reconciliation_Sheet	where Convert(Entry_Date,Date) = Convert(Previous_Entry_date,Date);
+									select IFNULL(ENDING_BALANCE,0) into Beginning_Balance from	Daily_Cash_Reconciliation_Sheet	where Convert(Entry_Date,Date) = Convert(Previous_Entry_date,Date) and ACC_ID = P_ACCOUNT_ID and Company_ID = P_COMPANY_ID;
 
 								ELSEif Convert(P_ENTRY_DATE,Date) <= Convert(Last_Entry_Date,Date) and Is_ENTRY_Date_Exists <> ''
 								then 
@@ -333,11 +333,11 @@ begin
                                         
 											SET User_Entry_Date = Convert(P_ENTRY_DATE,Date);
 									        SET Previous_Entry_Date = Convert(P_ENTRY_DATE,Date);
-											select  IFNULL(BEGINNING_BALANCE,0) into Beginning_Balance from Daily_Cash_Reconciliation_Sheet where Convert(Entry_Date,Date) = Convert(Previous_Entry_date,Date);
+											select  IFNULL(BEGINNING_BALANCE,0) into Beginning_Balance from Daily_Cash_Reconciliation_Sheet where Convert(Entry_Date,Date) = Convert(Previous_Entry_date,Date) and ACC_ID = P_ACCOUNT_ID and Company_ID = P_COMPANY_ID;
          
 									else 
 											SET User_Entry_Date = Convert(P_ENTRY_DATE,Date);
-											select  IFNULL(ENDING_BALANCE,0) into Beginning_Balance from Daily_Cash_Reconciliation_Sheet where Convert(Entry_Date,Date) = Convert(Previous_Entry_date,Date);
+											select  IFNULL(ENDING_BALANCE,0) into Beginning_Balance from Daily_Cash_Reconciliation_Sheet where Convert(Entry_Date,Date) = Convert(Previous_Entry_date,Date) and Convert(User_Entry_Date,Date)<>Convert(Previous_Entry_Date,Date) and ACC_ID = P_ACCOUNT_ID and Company_ID = P_COMPANY_ID;
 
 									End if;
 									
@@ -504,7 +504,7 @@ begin
 				
 			
 END $$
-DELIMITER ;	
+DELIMITER ;		
 
 
 
