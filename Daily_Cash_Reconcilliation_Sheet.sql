@@ -162,13 +162,13 @@ begin
 										where 		  A.CASH_ACC_ID 			    = P_ACCOUNT_ID
 										And 
 													  case	
-															when Convert(A.ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date) then Convert(A.ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date)
-															when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.Entry_Date,Date) = Convert(User_Entry_Date,Date)
+															when Convert(A.R_ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date) then Convert(A.R_ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date)
+															when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.R_ENTRY_DATE,Date) = Convert(User_Entry_Date,Date)
 													  END
 										and           
 													  case 
-															when Convert(A.Entry_Date,Date) <= Convert(User_Entry_Date,Date) then Convert(A.Entry_date,Date) <= Convert(User_Entry_Date,Date)
-															when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.Entry_Date,Date) = Convert(User_Entry_Date,Date)
+															when Convert(A.R_ENTRY_DATE,Date) <= Convert(User_Entry_Date,Date) then Convert(A.R_ENTRY_DATE,Date) <= Convert(User_Entry_Date,Date)
+															when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.R_ENTRY_DATE,Date) = Convert(User_Entry_Date,Date)
 													  END
 										and   	      B.FORM_FLAG 			        = 'E'
 										and           B.FORM_AMOUNT > 0
@@ -193,13 +193,13 @@ begin
 										where   		A.CASH_ACC_ID = P_ACCOUNT_ID
 										And 
 													  case	
-															when Convert(A.ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date) then Convert(A.ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date)
-															when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.Entry_Date,Date) = Convert(User_Entry_Date,Date)
+															when Convert(A.R_ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date) then Convert(A.R_ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date)
+															when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.R_ENTRY_DATE,Date) = Convert(User_Entry_Date,Date)
 													  END
 										and           
 													  case 
-															when Convert(A.Entry_Date,Date) <= Convert(User_Entry_Date,Date) then Convert(A.Entry_date,Date) <= Convert(User_Entry_Date,Date)
-															when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.Entry_Date,Date) = Convert(User_Entry_Date,Date)
+															when Convert(A.R_ENTRY_DATE,Date) <= Convert(User_Entry_Date,Date) then Convert(A.R_ENTRY_DATE,Date) <= Convert(User_Entry_Date,Date)
+															when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.R_ENTRY_DATE,Date) = Convert(User_Entry_Date,Date)
 													  END		   
 										and		        	B.FORM_FLAG = 'I'
 										and    	        	A.COMPANY_ID = P_COMPANY_ID
@@ -223,13 +223,13 @@ begin
 										where     		A.CASH_ACC_ID = P_ACCOUNT_ID
 										And 
 													  case	
-															when Convert(A.ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date) then Convert(A.ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date)
-															when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.Entry_Date,Date) = Convert(User_Entry_Date,Date)
+															when Convert(A.R_ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date) then Convert(A.R_ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date)
+															when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.R_ENTRY_DATE,Date) = Convert(User_Entry_Date,Date)
 													  END
 										and           
 													  case 
-															when Convert(A.Entry_Date,Date) <= Convert(User_Entry_Date,Date) then Convert(A.Entry_date,Date) <= Convert(User_Entry_Date,Date)
-															when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.Entry_Date,Date) = Convert(User_Entry_Date,Date)
+															when Convert(A.R_ENTRY_DATE,Date) <= Convert(User_Entry_Date,Date) then Convert(A.R_ENTRY_DATE,Date) <= Convert(User_Entry_Date,Date)
+															when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.R_ENTRY_DATE,Date) = Convert(User_Entry_Date,Date)
 													  END
 										and     	    	B.FORM_FLAG = 'T'
 										and    		    	A.COMPANY_ID = P_COMPANY_ID
@@ -253,13 +253,13 @@ begin
 										where    	    A.CASH_ACC_ID = P_ACCOUNT_ID
 										And 
 													  case	
-															when Convert(A.ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date) then Convert(A.ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date)
-															when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.Entry_Date,Date) = Convert(User_Entry_Date,Date)
+															when Convert(A.PAY_ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date) then Convert(A.PAY_ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date)
+															when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.PAY_ENTRY_DATE,Date) = Convert(User_Entry_Date,Date)
 													  END
 										and           
 													  case 
-															when Convert(A.Entry_Date,Date) <= Convert(User_Entry_Date,Date) then Convert(A.Entry_date,Date) <= Convert(User_Entry_Date,Date)
-															when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.Entry_Date,Date) = Convert(User_Entry_Date,Date)
+															when Convert(A.PAY_ENTRY_DATE,Date) <= Convert(User_Entry_Date,Date) then Convert(A.PAY_ENTRY_DATE,Date) <= Convert(User_Entry_Date,Date)
+															when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.PAY_ENTRY_DATE,Date) = Convert(User_Entry_Date,Date)
 													  END
 										and      	    	B.FORM_FLAG = 'V'
 										and      	    	A.COMPANY_ID = P_COMPANY_ID
@@ -283,13 +283,13 @@ begin
 										where   	A.CASH_ACC_ID = P_ACCOUNT_ID
 										And 
 													  case	
-															when Convert(A.ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date) then Convert(A.ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date)
-															when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.Entry_Date,Date) = Convert(User_Entry_Date,Date)
+															when Convert(A.PAY_ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date) then Convert(A.PAY_ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date)
+															when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.PAY_ENTRY_DATE,Date) = Convert(User_Entry_Date,Date)
 													  END
 										and           
 													  case 
-															when Convert(A.Entry_Date,Date) <= Convert(User_Entry_Date,Date) then Convert(A.Entry_date,Date) <= Convert(User_Entry_Date,Date)
-															when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.Entry_Date,Date) = Convert(User_Entry_Date,Date)
+															when Convert(A.PAY_ENTRY_DATE,Date) <= Convert(User_Entry_Date,Date) then Convert(A.PAY_ENTRY_DATE,Date) <= Convert(User_Entry_Date,Date)
+															when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.PAY_ENTRY_DATE,Date) = Convert(User_Entry_Date,Date)
 													  END
 										and       	    	B.FORM_FLAG = 'L'
 										and      	    	A.COMPANY_ID = P_COMPANY_ID
@@ -370,13 +370,13 @@ begin
 							where 		A.CASH_ACC_ID 			   = P_ACCOUNT_ID
 							And 
 											case	
-												when Convert(A.ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date) then Convert(A.ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date)
-												when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.Entry_Date,Date) = Convert(User_Entry_Date,Date)
+												when Convert(A.PAY_ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date) then Convert(A.PAY_ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date)
+												when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.PAY_ENTRY_DATE,Date) = Convert(User_Entry_Date,Date)
 											END
 							and           
 											case 
-												when Convert(A.Entry_Date,Date) <= Convert(User_Entry_Date,Date) then Convert(A.Entry_date,Date) <= Convert(User_Entry_Date,Date)
-												when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.Entry_Date,Date) = Convert(User_Entry_Date,Date)
+												when Convert(A.PAY_ENTRY_DATE,Date) <= Convert(User_Entry_Date,Date) then Convert(A.PAY_ENTRY_DATE,Date) <= Convert(User_Entry_Date,Date)
+												when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.PAY_ENTRY_DATE,Date) = Convert(User_Entry_Date,Date)
 											END
 							and 		 B.FORM_FLAG 			   = 'R'
 							and	         A.COMPANY_ID = P_COMPANY_ID
@@ -399,13 +399,13 @@ begin
 							where 		A.CASH_ACC_ID 			   = P_ACCOUNT_ID
 							And 
 										case	
-											when Convert(A.ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date) then Convert(A.ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date)
-											when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.Entry_Date,Date) = Convert(User_Entry_Date,Date)
+											when Convert(A.R_ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date) then Convert(A.R_ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date)
+											when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.R_ENTRY_DATE,Date) = Convert(User_Entry_Date,Date)
 										END
 							and           
 										case 
-											when Convert(A.Entry_Date,Date) <= Convert(User_Entry_Date,Date) then Convert(A.Entry_date,Date) <= Convert(User_Entry_Date,Date)
-											when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.Entry_Date,Date) = Convert(User_Entry_Date,Date)
+											when Convert(A.R_ENTRY_DATE,Date) <= Convert(User_Entry_Date,Date) then Convert(A.R_ENTRY_DATE,Date) <= Convert(User_Entry_Date,Date)
+											when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.R_ENTRY_DATE,Date) = Convert(User_Entry_Date,Date)
 										END
 							and 		B.FORM_FLAG 			   = 'S'
 							and         A.COMPANY_ID = P_COMPANY_ID
@@ -428,13 +428,13 @@ begin
 							where 		A.CASH_ACC_ID 			   = P_ACCOUNT_ID
 							And 
 										case	
-											when Convert(A.ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date) then Convert(A.ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date)
-											when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.Entry_Date,Date) = Convert(User_Entry_Date,Date)
+											when Convert(A.PAY_ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date) then Convert(A.PAY_ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date)
+											when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.PAY_ENTRY_DATE,Date) = Convert(User_Entry_Date,Date)
 										END
 							and           
 										case 
-											when Convert(A.Entry_Date,Date) <= Convert(User_Entry_Date,Date) then Convert(A.Entry_date,Date) <= Convert(User_Entry_Date,Date)
-											when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.Entry_Date,Date) = Convert(User_Entry_Date,Date)
+											when Convert(A.PAY_ENTRY_DATE,Date) <= Convert(User_Entry_Date,Date) then Convert(A.PAY_ENTRY_DATE,Date) <= Convert(User_Entry_Date,Date)
+											when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.PAY_ENTRY_DATE,Date) = Convert(User_Entry_Date,Date)
 										END
 							and 		B.FORM_FLAG 			   = 'N'
 							and         A.COMPANY_ID = P_COMPANY_ID
@@ -457,13 +457,13 @@ begin
 							where 		A.CASH_ACC_ID 			   = P_ACCOUNT_ID
 							And 
 										case	
-											when Convert(A.ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date) then Convert(A.ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date)
-											when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.Entry_Date,Date) = Convert(User_Entry_Date,Date)
+											when Convert(A.R_ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date) then Convert(A.R_ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date)
+											when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.R_ENTRY_DATE,Date) = Convert(User_Entry_Date,Date)
 										END
 							and           
 										case 
-											when Convert(A.Entry_Date,Date) <= Convert(User_Entry_Date,Date) then Convert(A.Entry_date,Date) <= Convert(User_Entry_Date,Date)
-											when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.Entry_Date,Date) = Convert(User_Entry_Date,Date)
+											when Convert(A.R_ENTRY_DATE,Date) <= Convert(User_Entry_Date,Date) then Convert(A.R_ENTRY_DATE,Date) <= Convert(User_Entry_Date,Date)
+											when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.R_ENTRY_DATE,Date) = Convert(User_Entry_Date,Date)
 										END
 							and 	    B.FORM_FLAG 			   = 'E'
 							and         B.FORM_AMOUNT < 0
@@ -488,13 +488,13 @@ begin
 							where 		 A.CASH_ACC_ID 			   = P_ACCOUNT_ID
 							And 
 										case	
-											when Convert(A.ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date) then Convert(A.ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date)
-											when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.Entry_Date,Date) = Convert(User_Entry_Date,Date)
+											when Convert(A.R_ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date) then Convert(A.R_ENTRY_DATE,Date)>Convert(Previous_Entry_Date,Date)
+											when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.R_ENTRY_DATE,Date) = Convert(User_Entry_Date,Date)
 										END
 							and           
 										case 
-											when Convert(A.Entry_Date,Date) <= Convert(User_Entry_Date,Date) then Convert(A.Entry_date,Date) <= Convert(User_Entry_Date,Date)
-											when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.Entry_Date,Date) = Convert(User_Entry_Date,Date)
+											when Convert(A.R_ENTRY_DATE,Date) <= Convert(User_Entry_Date,Date) then Convert(A.R_ENTRY_DATE,Date) <= Convert(User_Entry_Date,Date)
+											when Convert(Previous_Entry_Date,Date) = Convert(User_Entry_Date,Date) then Convert(A.R_ENTRY_DATE,Date) = Convert(User_Entry_Date,Date)
 										END
 							and 		B.FORM_FLAG 			   = 'L'
 							and         A.COMPANY_ID = P_COMPANY_ID
