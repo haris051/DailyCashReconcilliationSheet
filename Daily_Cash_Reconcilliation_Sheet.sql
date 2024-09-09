@@ -141,18 +141,18 @@ begin
 							
 						
 
-								select *,Count(*) Over() as Total_ROWS,SUM(A.Amount) Over() as Total_InFlow,IFNULL(Beginning_Balance,0) as Beginning_Balance,Closing_Report as Closing_Report
+								select *,Count(*) Over() as Total_ROWS,SUM(A.Amount) Over() as Total_InFlow,Round(cast(IFNULL(Beginning_Balance,0) as Decimal(22,2)),2) as Beginning_Balance,Closing_Report as Closing_Report
                                 from(
 										
 										            
 										select 	    
 													B.id,
-													'Inflow' 					 as Cash_Flow,
-													 Round(ABS(B.FORM_AMOUNT),2) as Amount,
-													 B.FORM_F_ID 				 as Form_Reference,
-													 C.REPLACEMENT_ID 			 as Form_Id,
-													 'Receipts' 				 as Confliction_Flag,
-													 'Replacement' 				 as Form_Flag
+													'Inflow' 					 						as Cash_Flow,
+													 Round(cast(ABS(B.FORM_AMOUNT) as Decimal(22,2)),2) as Amount,
+													 B.FORM_F_ID 				 						as Form_Reference,
+													 C.REPLACEMENT_ID 			 						as Form_Id,
+													 'Receipts' 				 						as Confliction_Flag,
+													 'Replacement' 				 						as Form_Flag
 										from 		  
 													  Receipts A
 										inner join	  Receipts_Detail B 
@@ -178,12 +178,12 @@ begin
 										
 										select  	
 													   B.id,
-													  'Inflow' 						as Cash_Flow,
-													   Round(ABS(B.FORM_AMOUNT),2) 	as Amount,
-													   B.FORM_F_ID 					as Form_Reference,
-													   C.Sale_INVOICE_ID 			as Form_Id,
-													   'Receipts' 					as Confliction_Flag,
-													   'SaleInvoice' 				as Form_Flag
+													  'Inflow' 											    as Cash_Flow,
+													   Round(cast(ABS(B.FORM_AMOUNT) as Decimal(22,2)),2) 	as Amount,
+													   B.FORM_F_ID 											as Form_Reference,
+													   C.Sale_INVOICE_ID 									as Form_Id,
+													   'Receipts' 											as Confliction_Flag,
+													   'SaleInvoice' 										as Form_Flag
 										from 	
 														Receipts A 
 										inner join  	receipts_detail B 
@@ -208,12 +208,12 @@ begin
 										
 										select  	
 														B.id,
-														'Inflow' 			 			 as Cash_Flow,
-														Round(ABS(B.FORM_AMOUNT),2) 	 as Amount,
-														B.FORM_F_ID 		 			 as Form_Reference,
-														C.STOCK_TRANSFER_ID  			 as Form_Id,
-														'Receipts'			 			 as Confliction_Flag,
-														'StockTransfer' 				 as Form_Flag
+														'Inflow' 			 			 					 as Cash_Flow,
+														Round(cast(ABS(B.FORM_AMOUNT) as Decimal(22,2)),2) 	 as Amount,
+														B.FORM_F_ID 		 			 					 as Form_Reference,
+														C.STOCK_TRANSFER_ID  			 					 as Form_Id,
+														'Receipts'			 			 					 as Confliction_Flag,
+														'StockTransfer' 				 					 as Form_Flag
 										from 	
 														Receipts A 
 										inner join 	    receipts_detail B 
@@ -238,12 +238,12 @@ begin
 										
 										select  	
 												    B.id,
-												    'Inflow' 	    			 as Cash_Flow,
-												    Round(ABS(B.FORM_AMOUNT),2)  as Amount,
-												    B.FORM_F_ID 				 as Form_Reference,
-												    C.VCM_ID 	    			 as Form_Id,
-												    'Payments' 	    			 as Confliction_Flag,
-												    'VendorCreditMemo'  		 as Form_Flag
+												    'Inflow' 	    			 						as Cash_Flow,
+												    Round(cast(ABS(B.FORM_AMOUNT) as Decimal(22,2)),2)  as Amount,
+												    B.FORM_F_ID 				 						as Form_Reference,
+												    C.VCM_ID 	    			 						as Form_Id,
+												    'Payments' 	    			 						as Confliction_Flag,
+												    'VendorCreditMemo'  		 						as Form_Flag
 										from 	
 												    Payments A 
 										inner join 	    Payments_detail B 
@@ -268,12 +268,12 @@ begin
 										
 										select  	
 												B.id,
-												'Inflow' 							as Cash_Flow,
-												Round(ABS(B.FORM_AMOUNT),2) 		as Amount,
-												B.FORM_F_ID 						as Form_Reference,
-												C.PARTIAL_CREDIT_ID     			as Form_Id,
-												'Payments' 							as Confliction_Flag,
-												'PartialCreditVoucher'  			as Form_Flag
+												'Inflow' 												as Cash_Flow,
+												Round(cast(ABS(B.FORM_AMOUNT) as Decimal(22,2)),2) 		as Amount,
+												B.FORM_F_ID 											as Form_Reference,
+												C.PARTIAL_CREDIT_ID     								as Form_Id,
+												'Payments' 												as Confliction_Flag,
+												'PartialCreditVoucher'  								as Form_Flag
 										from 	
 													Payments A 
 										inner join  Payments_detail B 
@@ -349,19 +349,19 @@ begin
 							
 					END IF;
 
-					select *,Count(*) Over() as Total_ROWS,SUM(A.Amount) Over() as Total_OutFlow,IFNULL(Beginning_Balance,0) as Beginning_Balance,Closing_Report as Closing_Report
+					select *,Count(*) Over() as Total_ROWS,SUM(A.Amount) Over() as Total_OutFlow,Round(cast(IFNULL(Beginning_Balance,0) as Decimal(22,2)),2) as Beginning_Balance,Closing_Report as Closing_Report
 					from(
 					
 							
 							
 							select 	    
 										B.id,
-										'Outflow' 		   			as Cash_Flow,
-										Round(ABS(B.FORM_AMOUNT),2) as Amount,
-										B.FORM_F_ID 	   			as Form_Reference,
-										C.RECEIVING_ID 	   			as Form_Id,
-										'Payments' 		   			as Confliction_Flag,
-										'ReceiveOrder' 	   			as Form_Flag
+										'Outflow' 		   								   as Cash_Flow,
+										Round(cast(ABS(B.FORM_AMOUNT) as Decimal(22,2)),2) as Amount,
+										B.FORM_F_ID 	   								   as Form_Reference,
+										C.RECEIVING_ID 	   								   as Form_Id,
+										'Payments' 		   								   as Confliction_Flag,
+										'ReceiveOrder' 	   								   as Form_Flag
 							from 		Payments A
 							inner join 	Payments_Detail B 
 							ON 			A.id = B.Payments_Id 
@@ -385,12 +385,12 @@ begin
 							
 							select 	    
 										B.id,
-										'Outflow' 		   as Cash_Flow,
-										Round(ABS(B.FORM_AMOUNT),2) as Amount,
-										B.FORM_F_ID 	   as Form_Reference,
-										C.Sale_Return_ID   as Form_Id,
-										'Receipts' 		   as Confliction_Flag,
-										'SaleReturn' 	   as Form_Flag
+										'Outflow' 		   								   as Cash_Flow,
+										Round(cast(ABS(B.FORM_AMOUNT) as Decimal(22,2)),2) as Amount,
+										B.FORM_F_ID 	   								   as Form_Reference,
+										C.Sale_Return_ID   								   as Form_Id,
+										'Receipts' 		   								   as Confliction_Flag,
+										'SaleReturn' 	   								   as Form_Flag
 							from 		Receipts A
 							inner join 	Receipts_Detail B 
 							ON 			A.id = B.Receipts_Id 
@@ -414,12 +414,12 @@ begin
 							
 							select 	    
 										B.id,
-										'Outflow' 		   			as Cash_Flow,
-										Round(ABS(B.FORM_AMOUNT),2) as Amount,
-										B.FORM_F_ID 	   			as Form_Reference,
-										C.Stock_In_ID 	   			as Form_Id,
-										'Payments' 		   			as Confliction_Flag,
-										'StockIn' 		   			as Form_Flag
+										'Outflow' 		   								   as Cash_Flow,
+										Round(cast(ABS(B.FORM_AMOUNT) as Decimal(22,2)),2) as Amount,
+										B.FORM_F_ID 	   								   as Form_Reference,
+										C.Stock_In_ID 	   								   as Form_Id,
+										'Payments' 		   								   as Confliction_Flag,
+										'StockIn' 		   								   as Form_Flag
 							from 		Payments A
 							inner join 	Payments_Detail B 
 							ON 			A.id = B.Payments_Id 
@@ -443,12 +443,12 @@ begin
 							
 							select 	    
 										B.id,
-										'Outflow' 					 as Cash_Flow,
-										Round(ABS(B.FORM_AMOUNT),2)  as Amount,
-										B.FORM_F_ID 				 as Form_Reference,
-										C.REPLACEMENT_ID 			 as Form_Id,
-										'Receipts' 					 as Confliction_Flag,
-										'Replacement' 				 as Form_Flag
+										'Outflow' 					 						as Cash_Flow,
+										Round(cast(ABS(B.FORM_AMOUNT) as Decimal(22,2)),2)  as Amount,
+										B.FORM_F_ID 				 						as Form_Reference,
+										C.REPLACEMENT_ID 			 						as Form_Id,
+										'Receipts' 					 						as Confliction_Flag,
+										'Replacement' 				 						as Form_Flag
 							from 		Receipts A
 							inner join 	Receipts_Detail B 
 							ON 			A.id = B.Receipts_Id 
@@ -473,12 +473,12 @@ begin
 							
 							select 	    
 										B.id,
-										'Outflow' 			   			   as Cash_Flow,
-										Round(ABS(B.FORM_AMOUNT),2) 	   as Amount,
-										B.FORM_F_ID 		   			   as Form_Reference,
-										C.PARTIAL_CREDIT_ID    			   as Form_Id,
-										'Receipts' 			   			   as Confliction_Flag,
-										'PartialCreditVoucher' 			   as Form_Flag
+										'Outflow' 			   			   					   as Cash_Flow,
+										Round(cast(ABS(B.FORM_AMOUNT) as Decimal(22,2)),2) 	   as Amount,
+										B.FORM_F_ID 		   			   					   as Form_Reference,
+										C.PARTIAL_CREDIT_ID    			   					   as Form_Id,
+										'Receipts' 			   			   					   as Confliction_Flag,
+										'PartialCreditVoucher' 			   					   as Form_Flag
 							from 		
 										 Receipts A
 							inner join 	 Receipts_Detail B 
@@ -504,7 +504,7 @@ begin
 				
 			
 END $$
-DELIMITER ;		
+DELIMITER ;
 
 
 
